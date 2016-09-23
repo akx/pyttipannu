@@ -30,7 +30,7 @@ requests-oauthlib==0.7.0  # via django-allauth
 requests==2.11.1
 selenium==2.53.6          # via pytest-splinter, splinter
 six==1.10.0               # via fake-factory, pip-tools, python-dateutil, requests-mock
-splinter==0.7.4           # via pytest-splinter
+splinter==0.7.3
 
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
