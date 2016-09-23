@@ -1,0 +1,13 @@
+django
+django-allauth
+django-bootstrap3
+django-filter
+djangorestframework
+factory-boy
+markdown
+pip-tools
+pytest-cov
+pytest-django
+pytest-splinter
+requests
+requests-mock

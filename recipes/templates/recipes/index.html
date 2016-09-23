@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Newest Recipes</h2>
+            <ul>
+                {% for recipe in newest_recipes %}
+                    <li>
+                        <a href="{{ recipe.get_absolute_url }}">{{ recipe }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url "submit" %}" class="btn btn-lg btn-block btn-primary">
+                Submit recipe :)
+            </a>
+        </div>
+    </div>
+{% endblock %}
