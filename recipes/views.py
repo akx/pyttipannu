@@ -37,41 +37,34 @@ class Show(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+        recipe = self.object
+        can_rate = recipe.can_rate(user)
         context.update(
-            can_edit=self.can_edit(),
-            can_rate=self.can_rate(),
+            can_edit=recipe.can_edit(user),
+            can_rate=can_rate,
             rating_range=range(1, 6),
         )
-        if self.can_rate():
+        if user.is_authenticated():
             context.update(
-                my_rating=self.object.ratings.filter(rater=self.request.user).first(),
+                my_rating=recipe.ratings.filter(rater=user).first(),
             )
         return context
 
-    def can_rate(self):
-        return bool(self.request.user.is_authenticated)
-
-    def can_edit(self):
-        return (self.object.creator == self.request.user)
-
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        self.object = recipe = self.get_object()
+        user = self.request.user
+
         public_flag = request.POST.get('public')
-        if self.can_edit() and public_flag:
-            self.object.public = (public_flag == '1')
-            self.object.save()
+
+        if recipe.can_edit(user) and public_flag:
+            recipe.public = (public_flag == '1')
+            recipe.save(update_fields=('public',))
+
         rating = request.POST.get('rating')
-        if self.can_rate() and rating:
-            try:
-                rating = int(rating)
-                if not 1 <= rating <= 5:
-                    raise ValueError()
-            except (TypeError, ValueError):
-                pass
-            self.object.ratings.update_or_create(
-                rater=self.request.user,
-                defaults={'rating': rating},
-            )
+
+        if rating:
+            recipe.rate(user, rating)
 
         return HttpResponseRedirect(self.request.path)
 

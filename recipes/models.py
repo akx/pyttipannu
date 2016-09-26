@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.db.models import Q
 from django.db.models import Sum, Count
@@ -49,6 +50,24 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+    def can_rate(self, user):
+        return bool(user.is_authenticated)
+
+    def can_edit(self, user):
+        return (user and user.is_authenticated() and self.creator_id == user.id)
+
+    def rate(self, user, rating):
+        if not self.can_rate(user):
+            raise PermissionDenied('can\'t rate')
+
+        rating = int(rating)
+        if not 1 <= rating <= 5:
+            raise ValueError()
+        self.ratings.update_or_create(
+            rater=user,
+            defaults={'rating': rating},
+        )
 
 
 class RecipeRating(models.Model):
